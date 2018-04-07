@@ -28,11 +28,11 @@ client.on('message', msg => {
     
     if (msg.content === '.help') {
         let commands = [
-            '.ping',
-            '.whoami',
-            '.whois [Role]',
-            '.say [Text] (admin only)',
-            '.iam [Role]',
+            '.ping - checks if you are lagging or you are having connection issues',
+            '.whoami- retrieve all your current roles',
+            '.whois [Role] - retrieve all users that are assigned to the specified role',
+            '.say [Text] (admin only) - make the bot say something (Rot13 Only)',
+            '.iam [Role] - set your role, can be the following (case and space sensitive)',
         ];
         
         let embed = new Discord.RichEmbed({
@@ -43,6 +43,31 @@ client.on('message', msg => {
         
         msg.channel.send({embed});
     }
+	
+	// TODO: Auto generate this list
+	if (msg.content === '.roles') {
+		let roles = [
+			'Composer',
+			'Artist',
+			'Business',
+			'3D Modelling',
+			'Game Programmer',
+			'Q/A',
+			'Mobile Developer',
+			'Web Developer',
+			'Voice Actor',
+			'Sound Designer',
+			'Security',
+		];
+        
+        let embed = new Discord.RichEmbed({
+            "title": `Available Roles`,
+            "description": roles.join('\n'),
+            "color": 0xFFFF
+        });
+        
+        msg.channel.send({embed});
+	}
     
     if (msg.content === '.iam .ping .pong') {
         reply(msg, 'BOT ABUSE!! MODS BOT ABUSE!');
@@ -75,9 +100,9 @@ client.on('message', msg => {
         logger.info(roles);
         
         let embed = new Discord.RichEmbed({
-        "title": `${msg.author.username}'s roles`,
-        "description": roles.join("\n"),
-        "color": 0xFFFF
+			"title": `${msg.author.username}'s roles`,
+			"description": roles.join("\n"),
+			"color": 0xFFFF
         });
         
         msg.channel.send({embed});
@@ -105,9 +130,9 @@ client.on('message', msg => {
         }
         
         let embed = new Discord.RichEmbed({
-        "title": `Users with Role`,
-        "description": payload,
-        "color": 0xFFFF
+			"title": `Users with Role ${role}`,
+			"description": payload,
+			"color": 0xFFFF
         });
         
         msg.channel.send({embed});
@@ -116,14 +141,14 @@ client.on('message', msg => {
     }
     
     if (msg.author.id === '250222623923896321') {
-        logger.info('Message from the Boss');
-        //msg.channel.send('I see u xander');
+        logger.info(`Xander: ${msg.content}`);
         
         let regx = /(\.say)+\s(.+)/gi;
         let res = regx.exec(msg.content)
         if(res) {
             logger.info(res[2]);
             msg.channel.send(res[2]);
+			msg.delete();
             return;
         } else {
             return;
