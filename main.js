@@ -144,7 +144,7 @@ client.on('message', msg => {
         }
         
         let embed = new Discord.RichEmbed({
-			"title": `${usersInRole.length} Users with Role `${role}``,
+			"title": `${usersInRole.length} Users with Role ${role}`,
 			"description": payload,
 			"color": 0xFFFF
         });
@@ -250,11 +250,12 @@ function isVowel(c) {
 // https://github.com/rigoneri/indefinite-article.js
 // Used to respond with a or an correctly
 function getArticle(phrase) {
-        
+	let word;
+	
     // Getting the first word 
     let match = /\w+/.exec(phrase);
     if (match)
-        let word = match[0];
+        word = match[0];
     else
         return "an";
     
