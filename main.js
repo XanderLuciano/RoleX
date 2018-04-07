@@ -156,7 +156,7 @@ client.on('message', msg => {
     
 	// Respond to .say IF xander said it.
     if (msg.author.id === '250222623923896321') {
-        logger.info(`Xander: ${msg.content}`);
+        logger.info(`(admin)Xander: ${msg.content}`);
         
         let regx = /(\.say)+\s(.+)/gi;
         let res = regx.exec(msg.content)
@@ -164,8 +164,6 @@ client.on('message', msg => {
             logger.info(res[2]);
             msg.channel.send(res[2]);
 			msg.delete();
-            return;
-        } else {
             return;
         }
     }
@@ -186,8 +184,10 @@ client.on('message', msg => {
         if (txtRole !== 'user++') {
             txtRole = toTitleCase(txtRole);
         }
+		let article = getArticle(results[2]);
+		
+		logger.info(`Requested Role: ${txtRole} or ${results[2]}`);
         
-        let article = getArticle(results[2].split(' ')[0]);
         reply(msg, `I understand you claim to be ${article} ${results[2].replace(/[|&;$%@"<>()+,]/g, '')}.`);
         
         let user = msg.member;
