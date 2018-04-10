@@ -321,7 +321,7 @@ function iamnot(msg, txtRole) {
 
     if (!role) {
         logger.error('Invalid role');
-        reply(msg, `${txtRole} doesn\'t seem to be an available role :neutral_face:`);
+        reply(msg, `${txtRole.replace(/[|&;$%@"<>()+,]/g, '')} doesn\'t seem to be an available role :neutral_face:`);
         return true;
     }
 
