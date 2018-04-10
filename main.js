@@ -21,6 +21,8 @@ const iamnotRegex = /\.(iamnot|iaint|imnot|remove|iaintno|imno|inot|amnot)+\s(.+
 const whoisRegex = /(\.whois)+\s(.+)/i
 const pingRegex = /(\.ping)+\s*/gi
 const pongRegex = /(\.pong)+\s*/gi
+const sayRegex = /\.(say)+\s(.+)/i;
+const everyoneRegex = /\.(everyone)/i;
 
 const whitelistRoles = [
     'composer',
@@ -68,11 +70,13 @@ client.on('message', msg => {
 		logger.info(`${msg.author.username} request the .help list.`);
 		
         let commands = [
-            '.ping - checks if you are lagging or you are having connection issues',
-            '.whoami- retrieve all your current roles',
-            '.whois [Role] - retrieve all users that are assigned to the specified role',
-            '.say [Text] (admin only) - make the bot say something (Rot13 Only)',
-            '.iam [Role] - set your role, can be the following (case and space sensitive)',
+            '`.help` - displays all available commands',
+            '`.ping` - responds with ``Pong``, if your connection is fine (useful to test for connection issues)',
+            '`.whoami` - retrieve all your current roles',
+            '`.whois [Role]` - retrieve all users that are assigned to the specified role',
+            '`.iam [Role]`  or  `.add [Role]` - set your role',
+			'`.iamnot [Role]` or `.remove [Role]` - remove the specified role',
+			'`.roles` - Display list of available roles.',
         ];
         
         let embed = new Discord.RichEmbed({
@@ -82,6 +86,7 @@ client.on('message', msg => {
         });
         
         msg.channel.send({embed});
+		return;
     }
 	
 	// Display all roles available at the user level
@@ -110,6 +115,7 @@ client.on('message', msg => {
         });
         
         msg.channel.send({embed});
+		return;
 	}
     
 	// Easter Egg
@@ -214,20 +220,62 @@ client.on('message', msg => {
         return;
     }
     
-	// Respond to .say IF xander said it.
+	// Respond to something IF xander said it.
     if (msg.author.id === '250222623923896321') {
-        let regx = /(\.say)+\s(.+)/gi;
-        let res = regx.exec(msg.content)
-        if(res) {
-            logger.info(`(admin)Xander: ${res[2]}`);
-            msg.channel.send(res[2]);
+	}
+	
+	// Responds to .say if commanded by admin
+	let results = sayRegex.exec(msg.content)
+	if(results) {
+		// Check if user is admin (Rot13)
+		if (msg.member.roles.exists('name', 'Rot13')) {
+			logger.info(`(admin)${msg.author.username}: ${results[2]}`);
+			msg.channel.send(results[2]);
 			msg.delete();
-            return;
-        }
-    }
+			return;
+		} else {
+			logger.error(`(pleb)${msg.author.username} tried to say: ${results[2]}`);
+			return;
+		}
+	}
+	
+	// Responds to .everyone if commanded by admin
+	results = everyoneRegex.exec(msg.content)
+	if(results) {
+		// Check if user is admin (Rot13)
+		if (msg.member.roles.exists('name', 'Rot13')) {
+			let role = "@everyone";
+			let users = msg.guild.members.filter(member => { 
+				return member.roles.find("name", role);
+			}).map(member => {
+				return member.user.username;
+			}).length;
+			
+			console.log(`Server User Count: ${users}`);
+			msg.channel.send(`Server User Count: ${users}`);
+			msg.delete();
+			return;
+		} else {
+			logger.error(`(pleb)${msg.author.username} tried to get user count`);
+			return;
+		}
+	}
+	
+	if (msg.content === '.restart' || msg.content === '.reboot') {
+		if (msg.member.roles.exists('name', 'Rot13')) {
+			msg.channel.send(`Rebooting...`);
+			console.warn(`${msg.author.username} rebooted the server`);
+			msg.delete();
+			setTimeout(() => { process.exit() }, 500);
+			return;
+		} else {
+			console.error(`${msg.author.username} tried to reboot the server`);
+			return;
+		}
+	}
     
 	// Respond to .iam for adding roles
-    let results = iamRegex.exec(msg.content);
+    results = iamRegex.exec(msg.content);
     if (results) {
         if (results.length != 3)
             return;
@@ -258,7 +306,7 @@ client.on('message', msg => {
         logger.error('.iamnot error');
         return;
     }
-    console.log(results);
+	
     logger.warn(`Unknown Command. ${msg.author.username}: '${msg.content}'`);
 });
 
