@@ -30,7 +30,7 @@ client.on('ready', () => {
 // Called when new users join server (guild)
 client.on('guildMemberAdd', member => {
     // Send the message to a designated channel on a server:
-    const channel = member.guild.channels.find('name', 'main');
+    const channel = member.guild.channels.find('name', 'welcomes');
     
 	// Do nothing if the channel wasn't found on this server
     if (!channel) return;
