@@ -23,12 +23,14 @@ const client = new Discord.Client();
 // Called when the bot starts up.
 client.on('ready', () => {
     logger.info(`Logged in as ${ client.user.tag }`); // output name of of the bot to the console
+	// Set the bot username on startup
+	//client.user.setUsername("RoleX");
 });
 
 // Called when new users join server (guild)
 client.on('guildMemberAdd', member => {
     // Send the message to a designated channel on a server:
-    const channel = member.guild.channels.find('name', 'main');
+    const channel = member.guild.channels.find('name', 'welcomes');
     
 	// Do nothing if the channel wasn't found on this server
     if (!channel) return;
@@ -42,6 +44,17 @@ client.on('message', (msg) => {
 
     // Check if the message was from a bot
     if (msg.author.bot) return;
+	
+	if (msg.content.toLowerCase().includes('oneless') || msg.content.toLowerCase().includes('🍖 less')
+			|| msg.content.toLowerCase().includes('onless') || msg.content.toLowerCase().includes('bone')
+			|| msg.content.toLowerCase().includes('gggg') || msg.content.toLowerCase().includes('bone')
+			|| msg.content.toLowerCase().includes('e|ess') || msg.content.toLowerCase().includes('🇧')
+			|| msg.content.toLowerCase().includes('o n e l') || msg.content.toLowerCase().includes('🅱')) {
+				
+		logger.info(`${msg.author.username} said boneless.`);
+		msg.delete();
+		
+	}
 
     if (!msg.content.startsWith('.')) return;
 

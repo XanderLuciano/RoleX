@@ -126,6 +126,10 @@ class RoleXBot {
     // ------------------------------- //
     // External User Command Functions //
     // ------------------------------- //
+	
+	smokeDaWeeds() {
+		this.msg.reply('#420 blaze it, yo.');
+	}
 
     // ping pong - it's what you 'd expect.
     ping() {
