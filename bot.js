@@ -26,11 +26,11 @@ const blacklistedRoles = [
 
 class RoleXBot {
     constructor () {
-        
+
     }
 
     // Internal User Commands
-    // User's can abritrarily call these. Need to be moved into a state manager.
+    // User's can arbitrarily call these. Need to be moved into a state manager.
 
     // Stores message state
     setMessage(msg) {
@@ -79,17 +79,17 @@ class RoleXBot {
 
         //logger.info(roles);
 
-        if (roles.length > 0) {		
+        if (roles.length > 0) {
 			let embed = new Discord.RichEmbed({
 				"title": `All Available Roles`,
 				"description": payload,
                 "color": 0xFFEB3B,
-                
+
                 footer: {
                     //icon_url: client.user.avatarURL,
                     text: "RoleX Bot © Xander 2018",
                 },
-                
+
 			});
 			logger.info(`Displayed All ${ roles.length } Roles.`);
 			this.msg.channel.send({embed});
@@ -103,11 +103,11 @@ class RoleXBot {
 
         // Look for role by name first
         roleObj = this.msg.guild.roles.find('name', role);
-        
+
         if (roleObj) {
             logger.warn(`Found Role by Name: ${roleObj.name}`);
             return roleObj;
-        } 
+        }
 
         // If role is not found by name, try getting the role by ID
         roleObj = this.msg.guild.roles.get(role);
@@ -126,7 +126,7 @@ class RoleXBot {
     // ------------------------------- //
     // External User Command Functions //
     // ------------------------------- //
-	
+
 	smokeDaWeeds() {
 		this.msg.reply('#420 blaze it, yo.');
 	}
@@ -169,7 +169,7 @@ class RoleXBot {
             this.msg.react('🖕')
             .then()
             .catch();
-            
+
             return;
         } else {
             // Check if role exists
@@ -202,14 +202,14 @@ class RoleXBot {
             this.msg.react('🤷');
             return;
         }
-        
+
         // Try to find a matching role
         let roleObj = this.findRole(role);
 
         // No matching Role
         if (!roleObj) return;
         role = roleObj;
-        
+
         // Log result
         logger.info(`Removing ${ role } on ${ this.getName() }`);
         this.msg.member.removeRole(role);
@@ -218,7 +218,7 @@ class RoleXBot {
         .catch();
         return;
     }
-    
+
     // Not Helpful
     help() {
         this.msg.reply('Fo Guck Yourself');
@@ -231,7 +231,7 @@ class RoleXBot {
             logger.error(`${ this.getName() } is not an admin!`);
             return;
         }
-        
+
         this.msg.channel.send(message);
         this.deleteMessage();
     }
@@ -259,7 +259,7 @@ class RoleXBot {
 
     // Displays Users in Role
     whois(role) {
-        
+
         // Try to find a matching role
         let roleObj = this.findRole(role);
 
@@ -267,27 +267,27 @@ class RoleXBot {
         if (!roleObj) return;
 
         role = roleObj.name;
-		
+
         logger.info(`(whois) Finding users in role: ${role}`);
 
         // Find all users with role by role name
-        let usersInRole = this.msg.guild.members.filter(member => { 
+        let usersInRole = this.msg.guild.members.filter(member => {
             return member.roles.find("name", role);
         }).map(member => {
             return member.user.username;
         });
-        
+
         let payload = usersInRole.join("\n");
-        
+
 		// Don't display more than 64 users (list would be huge in chat)
         if (usersInRole.length > 64) {
             logger.info(`Too many users (${usersInRole.length}, max: 64)`);
 			this.msg.channel.send(`Sorry, too many users to display (${usersInRole.length} users).`);
             return;
         }
-        
+
 		// Check if we have users in this Role
-		if (usersInRole.length > 0) {		
+		if (usersInRole.length > 0) {
 			let embed = new Discord.RichEmbed({
 				"title": `${usersInRole.length} User${usersInRole.length > 1 ? 's are' : ' is'} in ${role.replace(/[|&;$%@"<>(),]/g, '')}`,
 				"description": payload,
@@ -297,19 +297,19 @@ class RoleXBot {
 			this.msg.channel.send({embed});
 			return;
 		}
-		
+
 		if (usersInRole.length === 0) {
 			logger.error(`No users found in role ${role}`);
 			this.msg.channel.send(`Sorry, there are no users in ${role.replace(/[|&;$%@"<>(),]/g, '')}.`);
 			return;
 		}
-		
+
         if (!usersusersInRole) {
 			logger.error('Error getting users');
 			this.msg.channel.send(`Sorry, could not find users in ${role.replace(/[|&;$%@"<>(),]/g, '')}.`);
 			return;
 		}
-        
+
 		logger.error('Error unhandled exception in: whoami');
 		this.msg.channel.send(`Sorry, I ran into an enexpected error. @Xander - Pls fix.`);
         return;
@@ -324,12 +324,12 @@ class RoleXBot {
         }
 
         let role = "@everyone";
-        let users = this.msg.guild.members.filter(member => { 
+        let users = this.msg.guild.members.filter(member => {
             return member.roles.find("name", role);
         }).map(member => {
             return member.user.username;
         }).length;
-        
+
         logger.info(`Server User Count: ${users}`);
         this.msg.channel.send(`Server User Count: ${users}`);
         this.msg.delete();

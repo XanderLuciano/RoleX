@@ -10,11 +10,11 @@ class Parser {
     // parser.getCommand(msg); outputs a string of the command
 
     getCommandArgs(msg) {
-        // Exectue the regex statement on the message text
+        // Execute the regex statement on the message text
         let results = genericCommandRegex.exec(msg);
 
         if (!results) return null;
-        
+
         // Check that we detected a command
         if (results.length > 0) {
             return {

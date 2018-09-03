@@ -1,21 +1,22 @@
 {
-  "name": "rolex-bot",
-  "version": "1.1.1",
-  "description": "A discord bot for managing user roles.",
-  "main": "RoleX.js",
-  "scripts": {
-    "bot": "node RoleX.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Xander Luciano",
-  "license": "MIT",
-  "dependencies": {
-    "discord.js": "^11.3.2",
-    "uws": "^9.14.0",
-    "winston": "^2.4.1"
-  },
-  "devDependencies": {
-    "babel-preset-env": "^1.6.1",
-    "babel-register": "^6.26.0"
-  }
+    "name": "rolex-bot",
+    "version": "1.2.0",
+    "description": "A discord bot for managing user roles.",
+    "main": "RoleX.js",
+    "scripts": {
+        "start": "node RoleX.js",
+        "bot": "npm run bot",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Xander Luciano",
+    "license": "MIT",
+    "dependencies": {
+        "discord.js": "^11.3.2",
+        "uws": "^9.14.0",
+        "winston": "^2.4.1"
+    },
+    "devDependencies": {
+        "babel-preset-env": "^1.6.1",
+        "babel-register": "^6.26.0"
+    }
 }
