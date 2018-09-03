@@ -1,32 +1,19 @@
 // All the "Actions" the bot can take
 
+// Discord API library
 import Discord from 'discord.js'
-const winston = require('winston');
 
-// Create Logger
-const logger = new (winston.Logger)({
-    transports: [
-        // colorize the output to the console
-        new (winston.transports.Console)({ colorize: true })
-    ]
-});
+// Import helper utilities
+import { logger, blacklistedRoles } from './src/utils';
 
-// Blacklisted roles that user's can't arbitrarily add to themselves
-const blacklistedRoles = [
-    'Rot13',
-    'user++',
-    'Arbiter of Fate',
-    'Our Lord, Jabril',
-    'Zapier',
-    '@everyone',
-    'The Naughty Corner (Misbehaving).',
-    'Trash',
-    'Contributor',
-];
+// Import Commands
+import { ADMIN, USER } from './src/commands'
+
+
 
 class RoleXBot {
     constructor () {
-
+        this.msg = '';
     }
 
     // Internal User Commands
@@ -60,7 +47,7 @@ class RoleXBot {
 
     // Check if user has a role
     checkForRole(role) {
-        return (this.msg.member.roles.exists('name', role) ? true : false);
+        return !!(this.msg.member.roles.exists('name', role));
     }
 
     // Get all "basic" roles
@@ -73,9 +60,13 @@ class RoleXBot {
 
         roles.sort();
 
-        let payload = roles.join('      ');
+        let payload = roles.join(' ');
 
-        payload += '\n\nAdd a role with \'`.iam ROLENAME`\'';
+        //payload += '\n\nAdd a role with \'`.iam ROLENAME`\'';
+
+        payload += `\n\nAdd a role with '\`.iam ROLENAME\`'\n\n`;
+        payload += `⚠ DO NOT INCLUDE THE @ ⚠\n`;
+        payload += `Case sensitive too. Why? Because it is.`;
 
         //logger.info(roles);
 
@@ -123,21 +114,23 @@ class RoleXBot {
         return null;
     }
 
+
     // ------------------------------- //
     // External User Command Functions //
     // ------------------------------- //
 
-	smokeDaWeeds() {
+
+	[USER.SMOKE_WEED]() {
 		this.msg.reply('#420 blaze it, yo.');
 	}
 
     // ping pong - it's what you 'd expect.
-    ping() {
+    [USER.PING]() {
         this.msg.reply('pong!');
     }
 
     // Reset all roles (doesn't work cuz it works too well)
-    reset() {
+    [USER.RESET]() {
         // First get all user roles
         return;
 
@@ -146,12 +139,12 @@ class RoleXBot {
         });
     }
 
-    add(role) {
+    [USER.ADD_ROLE](role) {
         this.iam(role);
     }
 
     // Add a role
-    iam(role) {
+    [USER.IAM](role) {
         // Check that a Role was supplied by the user
         if (!role) {
             this.msg.react('🤷');
@@ -170,6 +163,10 @@ class RoleXBot {
             .then()
             .catch();
 
+            this.msg.react('❌')
+            .then()
+            .catch();
+
             return;
         } else {
             // Check if role exists
@@ -178,7 +175,7 @@ class RoleXBot {
             // Reply sarcastically if invalid, else give thumbs up.
             if (!roleObj) {
                 logger.error(`${ role } is an invalid role`);
-                this.msg.reply(`\`${ role }\` doesn't seem to be an actual role, dumbass :neutral_face:\nDo you need to see the list again? (hint: it's \`.roles\`)`);
+                this.msg.reply(`\`${ role }\` doesn't seem to be an actual role (or you can't type), dumbass :neutral_face:\nDo you need to see the list again? (hint: it's \`.roles\`)`);
                 return;
             } else {
                 logger.info(`Adding ${ role } to ${ this.getName() }`);
@@ -191,15 +188,16 @@ class RoleXBot {
         }
     }
 
-    remove(role) {
+    [USER.REMOVE](role) {
         this.iamnot(role);
     }
 
     // Remove a role
-    iamnot(role) {
+    [USER.IAMNOT](role) {
         // Check that a Role was supplied by the user
         if (!role) {
             this.msg.react('🤷');
+            this.msg.react('❌');
             return;
         }
 
@@ -213,36 +211,24 @@ class RoleXBot {
         // Log result
         logger.info(`Removing ${ role } on ${ this.getName() }`);
         this.msg.member.removeRole(role);
-        this.msg.react('❌')
+        this.msg.react('✅')
         .then()
         .catch();
         return;
     }
 
     // Not Helpful
-    help() {
-        this.msg.reply('Fo Guck Yourself');
-    }
-
-    // Talk as the bot
-    say(message) {
-        // Only let admins run command
-        if (!this.checkIfAdmin()) {
-            logger.error(`${ this.getName() } is not an admin!`);
-            return;
-        }
-
-        this.msg.channel.send(message);
-        this.deleteMessage();
+    [USER.HELP]() {
+        this.msg.reply('Fo Guck Yourself\nYou can help RoleX: https://github.com/XanderLuciano/RoleX\nevery star helps feed a starving bot.');
     }
 
     // Display Role List
-    roles() {
+    [USER.ROLES]() {
         this.getAllRoles();
     }
 
     // Display User Roles
-    whoami() {
+    [USER.WHOAMI]() {
         //let roles = this.msg.member.roles.map( role => role.name );
         let roles = this.msg.member.roles.filterArray( role => role.name !== '@everyone' );
         roles.sort();
@@ -258,7 +244,7 @@ class RoleXBot {
     }
 
     // Displays Users in Role
-    whois(role) {
+    [USER.WHOIS](role) {
 
         // Try to find a matching role
         let roleObj = this.findRole(role);
@@ -315,8 +301,26 @@ class RoleXBot {
         return;
     }
 
+
+    // --------------------------------- //
+    //  Admin  Only  Command  Functions  //
+    // --------------------------------- //
+
+
+    // Talk as the bot
+    [ADMIN.SAY](message) {
+        // Only let admins run command
+        if (!this.checkIfAdmin()) {
+            logger.error(`${ this.getName() } is not an admin!`);
+            return;
+        }
+
+        this.msg.channel.send(message);
+        this.deleteMessage();
+    }
+
     // Display User Count
-    everyone() {
+    [ADMIN.EVERYONE]() {
         // Only let admins run command
         if (!this.checkIfAdmin()) {
             logger.error(`${ this.getName() } is not an admin!`);
@@ -336,7 +340,7 @@ class RoleXBot {
     }
 
     // Restart the Script
-    restart() {
+    [ADMIN.RESTART]() {
         // Only let admins run command
         if (!this.checkIfAdmin()) {
             logger.error(`${ this.getName() } is not an admin!`);
@@ -351,16 +355,16 @@ class RoleXBot {
         setTimeout(() => { process.exit() }, 1000);
     }
 
-    reboot() {
+    [ADMIN.REBOOT]() {
         this.restart();
     }
 
-    reload() {
+    [ADMIN.RELOAD]() {
         this.restart();
     }
 
     // Kick a user for any reason
-    kick() {
+    [ADMIN.KICK]() {
         // Only let admins run command
         if (!this.checkIfAdmin()) {
             logger.error(`${ this.getName() } is not an admin!`);
@@ -379,4 +383,4 @@ class RoleXBot {
     }
 }
 
-export default new RoleXBot();
+export const rolex = new RoleXBot();
