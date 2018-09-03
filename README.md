@@ -2,7 +2,7 @@
 
 ![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=for-the-badge) 
 
-RoleX Both is (at this point) a fairly simple discord bot built in Node.js that allows users to easily view all available roles and add/remove roles from themselves. In it's current state, this bot is something entirely eductional for myself to learn more and try different things - which is why I put it on NPM. At this point I don't really expect *anyone* to use this bot besides myself, but hey, you can if you want.
+RoleX Bot is (at this point) a fairly simple discord bot built in Node.js that allows users to easily view all available roles and add/remove roles from themselves. In it's current state, this bot is something entirely eductional for myself to learn more and try different things - which is why I put it on NPM. At this point I don't really expect *anyone* to use this bot besides myself, but hey, you can if you want.
 
 ### Setup
 
