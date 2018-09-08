@@ -41,8 +41,7 @@ class RoleXBot {
 
     // Check if someone is admin / Rot13
     checkIfAdmin() {
-        //return (this.msg.member.roles.exists('name', 'Rot13') ? true : false);
-        return this.checkForRole('Rot13');
+        return this.checkForRole('Rot13') || this.checkForRole('Arbiter of Fate');
     }
 
     // Check if user has a role
