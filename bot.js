@@ -172,17 +172,16 @@ class RoleXBot {
             let roleObj = this.msg.guild.roles.find('name', role);
 
             // Reply sarcastically if invalid, else give thumbs up.
+            // Auto delete messages after short timeout
             if (!roleObj) {
                 logger.error(`${ role } is an invalid role`);
                 this.msg.reply(`\`${ role }\` doesn't seem to be an actual role (or you can't type), dumbass :neutral_face:\nDo you need to see the list again? (hint: it's \`.roles\`)`);
-                return;
+                setTimeout(() => { this.msg.delete(); }, 3000);
             } else {
                 logger.info(`Adding ${ role } to ${ this.getName() }`);
                 this.msg.member.addRole(roleObj);
-                this.msg.react('✅')
-                .then()
-                .catch();
-                return;
+                this.msg.react('✅').then();
+                setTimeout(() => { this.msg.delete(); }, 5000);
             }
         }
     }
@@ -326,16 +325,24 @@ class RoleXBot {
             return;
         }
 
+        /*
+        // This just returns all online users
         let role = "@everyone";
         let users = this.msg.guild.members.filter(member => {
             return member.roles.find("name", role);
         }).map(member => {
             return member.user.username;
         }).length;
+        */
 
-        logger.info(`Server User Count: ${users}`);
-        this.msg.channel.send(`Server User Count: ${users}`);
-        this.msg.delete();
+        const onlineUsers = this.msg.guild.members.filter(member => !member.user.bot).size;
+        const botUsers = this.msg.guild.members.filter(member => member.user.bot).size;
+        const totalUsers = this.msg.guild.memberCount;
+
+        logger.info(`Server User Count: ${onlineUsers} / ${totalUsers}`);
+        this.msg.channel.send(`Members: **${onlineUsers}** (online) / **${botUsers}** (bots) / **${totalUsers}** (total)`)
+            .then( this.msg.delete() );
+
     }
 
     // Restart the Script
