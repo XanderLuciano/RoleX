@@ -12,4 +12,6 @@ export const blacklistedRoles = [
     'Trash',
     'Contributor',
     'Statbot',
+	'Competitor',
+	'I have introduced myself',
 ];
