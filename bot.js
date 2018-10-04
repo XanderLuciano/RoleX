@@ -1,23 +1,18 @@
 // All the "Actions" the bot can take
 
-// Discord API library
-import Discord from 'discord.js'
-
-// Import helper utilities
-import { logger, blacklistedRoles } from './src/utils';
-
-// Import Commands
-import { ADMIN, USER } from './src/commands'
+import Discord                      from 'discord.js'      // Discord API library
+import { logger, blacklistedRoles } from './src/utils'     // Import helper utilities
+import { ADMIN, USER }              from './src/commands'  // Import Commands
 
 
 
 class RoleXBot {
     constructor () {
-        this.msg = '';
+        this.msg = null;
     }
 
     // Internal User Commands
-    // User's can arbitrarily call these. Need to be moved into a state manager.
+    // User's can arbitrarily call these.
 
     // Stores message state
     setMessage(msg) {
@@ -46,56 +41,45 @@ class RoleXBot {
 
     // Check if user has a role
     checkForRole(role) {
-        return !!(this.msg.member.roles.exists('name', role));
+        // return !!(this.msg.member.roles.exists('name', role));
+        return !!(this.msg.member.roles.some(val => val.name === role));
     }
 
     // Get all "basic" roles
-    getAllRoles() {
-        let roles = this.msg.guild.roles.filterArray( (role) => {
-            let name = role.name;
-            if (!blacklistedRoles.includes(name))
-                return name;
-        });
-
-        roles.sort();
-
-        let payload = roles.join(' ');
-
-        //payload += '\n\nAdd a role with \'`.iam ROLENAME`\'';
+    async getAllRoles() {
+        const roles = this.msg.guild.roles.filter( role => !blacklistedRoles.includes(role.name) ).array().sort();
+        let payload = roles.join(', ');
 
         payload += `\n\nAdd a role with '\`.iam ROLENAME\`'\n\n`;
         payload += `⚠ DO NOT INCLUDE THE @ ⚠\n`;
         payload += `Case sensitive too. Why? Because it is.`;
 
-        //logger.info(roles);
-
         if (roles.length > 0) {
-			let embed = new Discord.RichEmbed({
-				"title": `All Available Roles`,
-				"description": payload,
-                "color": 0xFFEB3B,
+			const embed = new Discord.RichEmbed({
+				title: `All ${ roles.length } Available Roles`,
+				description: payload,
+                color: 0xFFEB3B,
 
                 footer: {
-                    //icon_url: client.user.avatarURL,
+                    // icon_url: client.user.avatarURL,
                     text: "RoleX Bot © Xander 2018",
                 },
-
 			});
 			logger.info(`Displayed All ${ roles.length } Roles.`);
-			this.msg.channel.send({embed});
-			return;
+			await this.msg.channel.send({embed});
 		}
     }
 
     // Find a user role by name or ID
-    findRole(role) {
-        let roleObj = null
+    async findRole(role) {
+        let roleObj;
 
         // Look for role by name first
-        roleObj = this.msg.guild.roles.find('name', role);
+        // roleObj = this.msg.guild.roles.find('name', role);
+        roleObj = this.msg.guild.roles.find( val => val.name === role );
 
         if (roleObj) {
-            logger.warn(`Found Role by Name: ${roleObj.name}`);
+            logger.info(`Found Role by Name: ${roleObj.name}`);
             return roleObj;
         }
 
@@ -108,9 +92,8 @@ class RoleXBot {
         }
 
         // Unable to find a matching Role
-        logger.error(`${role} is not a valid role.`);
-        this.msg.channel.send(`No valid role found :cry:`);
-        return null;
+        logger.error(`${ role } is not a valid role.`);
+        await this.msg.channel.send(`No valid role found :cry:`);
     }
 
 
@@ -121,6 +104,7 @@ class RoleXBot {
 
 	[USER.SMOKE_WEED]() {
 		this.msg.reply('#420 blaze it, yo.');
+        setTimeout( () => this.msg.delete(), 3000 );
 	}
 
     // ping pong - it's what you 'd expect.
@@ -131,11 +115,8 @@ class RoleXBot {
     // Reset all roles (doesn't work cuz it works too well)
     [USER.RESET]() {
         // First get all user roles
-        return;
-
-        this.msg.member.edit({
-            roles: [],
-        });
+        return false;
+        // this.msg.member.edit({ roles: [] });
     }
 
     [USER.ADD_ROLE](role) {
@@ -143,10 +124,10 @@ class RoleXBot {
     }
 
     // Add a role
-    [USER.IAM](role) {
+    async [USER.IAM](role) {
         // Check that a Role was supplied by the user
         if (!role) {
-            this.msg.react('🤷');
+            await this.msg.react('🤷');
             this.whoami();
             return;
         }
@@ -154,34 +135,26 @@ class RoleXBot {
         // Check if this is a blacklisted role...
         if (blacklistedRoles.includes(role)) {
             logger.warn(`${role} is a protected role!`);
-            this.msg.reply(`How dumb do I look :neutral_face:`)
-            .then()
-            .catch();
+            await this.msg.reply(`How dumb do I look :neutral_face:`);
+            await this.msg.react('🖕');
+            await this.msg.react('❌');
 
-            this.msg.react('🖕')
-            .then()
-            .catch();
-
-            this.msg.react('❌')
-            .then()
-            .catch();
-
-            return;
+        // Check if role exists
         } else {
-            // Check if role exists
-            let roleObj = this.msg.guild.roles.find('name', role);
+            // let roleObj = this.msg.guild.roles.find('name', role);
+            let roleObj = this.msg.guild.roles.find( val => val.name === role );
 
             // Reply sarcastically if invalid, else give thumbs up.
             // Auto delete messages after short timeout
             if (!roleObj) {
                 logger.error(`${ role } is an invalid role`);
                 this.msg.reply(`\`${ role }\` doesn't seem to be an actual role (or you can't type), dumbass :neutral_face:\nDo you need to see the list again? (hint: it's \`.roles\`)`);
-                setTimeout(() => { this.msg.delete(); }, 3000);
+                setTimeout( () => this.msg.delete(), 3000 );
             } else {
                 logger.info(`Adding ${ role } to ${ this.getName() }`);
-                this.msg.member.addRole(roleObj);
-                this.msg.react('✅').then();
-                setTimeout(() => { this.msg.delete(); }, 5000);
+                await this.msg.member.addRole(roleObj);
+                await this.msg.react('✅');
+                setTimeout( () => { this.msg.delete(); }, 5000 );
             }
         }
     }
@@ -191,16 +164,16 @@ class RoleXBot {
     }
 
     // Remove a role
-    [USER.IAMNOT](role) {
+    async [USER.IAMNOT](role) {
         // Check that a Role was supplied by the user
         if (!role) {
-            this.msg.react('🤷');
-            this.msg.react('❌');
+            await this.msg.react('🤷');
+            await this.msg.react('❌');
             return;
         }
 
         // Try to find a matching role
-        let roleObj = this.findRole(role);
+        let roleObj = await this.findRole(role);
 
         // No matching Role
         if (!roleObj) return;
@@ -208,95 +181,96 @@ class RoleXBot {
 
         // Log result
         logger.info(`Removing ${ role } on ${ this.getName() }`);
-        this.msg.member.removeRole(role);
-        this.msg.react('✅')
-        .then()
-        .catch();
-        return;
+        await this.msg.member.removeRole( role );
+        await this.msg.react('✅');
     }
 
     // Not Helpful
-    [USER.HELP]() {
+    async [USER.HELP]() {
         this.msg.reply('Fo Guck Yourself\nYou can help RoleX: https://github.com/XanderLuciano/RoleX\nevery star helps feed a starving bot.');
+        await this.msg.react('⭐');
     }
 
     // Display Role List
-    [USER.ROLES]() {
-        this.getAllRoles();
+    async [USER.ROLES]() {
+        await this.getAllRoles();
     }
 
     // Display User Roles
-    [USER.WHOAMI]() {
+    async [USER.WHOAMI]() {
         //let roles = this.msg.member.roles.map( role => role.name );
-        let roles = this.msg.member.roles.filterArray( role => role.name !== '@everyone' );
-        roles.sort();
+        const roles = this.msg.member.roles.filter( role => role.name !== '@everyone' ).array().sort().join('\n');
 
-        logger.info (`${ this.getName() }'s Roles: ${roles}`);
+        // logger.info (`${ this.getName() }'s Roles: ${ JSON.stringify(roles) }`);
+        logger.info (`List ${ this.getName() }'s Roles.`);
 
         let embed = new Discord.RichEmbed({
 			'title': `${ this.getName() }'s roles`,
-			'description': roles.join('\n'),
-			'color': 0x2196f3
+			'description': roles,
+			'color': 0x2196f3,
+            footer: {
+                // icon_url: client.user.avatarURL,
+                text: "RoleX Bot © Xander 2018",
+            },
         });
-        this.msg.channel.send({embed});
+        await this.msg.channel.send({embed});
+        setTimeout( () => this.msg.delete(), 3000 );
     }
 
     // Displays Users in Role
-    [USER.WHOIS](role) {
+    async [USER.WHOIS](role) {
 
         // Try to find a matching role
-        let roleObj = this.findRole(role);
+        let roleObj = await this.findRole(role);
 
         // No matching Role
         if (!roleObj) return;
 
         role = roleObj.name;
 
-        logger.info(`(whois) Finding users in role: ${role}`);
+        logger.info(`(whois) Finding users in role: ${ role }`);
 
         // Find all users with role by role name
-        let usersInRole = this.msg.guild.members.filter(member => {
-            return member.roles.find("name", role);
-        }).map(member => {
-            return member.user.username;
-        });
+        let usersInRole = this.msg.guild.members
+            // .filter( member => !!member.roles.find("name", role) )
+            .filter( member => !!member.roles.find( val => val.name === role) )
+                .map( member => member.user.username );
 
         let payload = usersInRole.join("\n");
 
 		// Don't display more than 64 users (list would be huge in chat)
         if (usersInRole.length > 64) {
-            logger.info(`Too many users (${usersInRole.length}, max: 64)`);
-			this.msg.channel.send(`Sorry, too many users to display (${usersInRole.length} users).`);
+            logger.info(`Too many users (${ usersInRole.length }, max: 64)`);
+			await this.msg.channel.send(`Sorry, too many users to display (${ usersInRole.length } users).`);
             return;
         }
 
 		// Check if we have users in this Role
 		if (usersInRole.length > 0) {
 			let embed = new Discord.RichEmbed({
-				"title": `${usersInRole.length} User${usersInRole.length > 1 ? 's are' : ' is'} in ${role.replace(/[|&;$%@"<>(),]/g, '')}`,
+				"title": `${usersInRole.length} User${usersInRole.length > 1 ? 's are' : ' is'} in ${ role.replace(/[|&;$%@"<>(),]/g, '') }`,
 				"description": payload,
 				"color": roleObj.color,
 			});
-			//logger.info(usersInRole.join(", "));
-			this.msg.channel.send({embed});
+
+			await this.msg.channel.send({embed});
 			return;
 		}
 
 		if (usersInRole.length === 0) {
 			logger.error(`No users found in role ${role}`);
-			this.msg.channel.send(`Sorry, there are no users in ${role.replace(/[|&;$%@"<>(),]/g, '')}.`);
+			await this.msg.channel.send(`Sorry, there are no users in ${ role.replace(/[|&;$%@"<>(),]/g, '') }.`);
 			return;
 		}
 
         if (!usersusersInRole) {
 			logger.error('Error getting users');
-			this.msg.channel.send(`Sorry, could not find users in ${role.replace(/[|&;$%@"<>(),]/g, '')}.`);
+			await this.msg.channel.send(`Sorry, could not find users in ${ role.replace(/[|&;$%@"<>(),]/g, '') }.`);
 			return;
 		}
 
 		logger.error('Error unhandled exception in: whoami');
-		this.msg.channel.send(`Sorry, I ran into an enexpected error. @Xander - Pls fix.`);
-        return;
+		await this.msg.channel.send(`Sorry, I ran into an enexpected error. @Xander - Pls fix.`);
     }
 
 
@@ -306,19 +280,19 @@ class RoleXBot {
 
 
     // Talk as the bot
-    [ADMIN.SAY](message) {
+    async [ADMIN.SAY](message) {
         // Only let admins run command
         if (!this.checkIfAdmin()) {
             logger.error(`${ this.getName() } is not an admin!`);
             return;
         }
 
-        this.msg.channel.send(message);
-        this.deleteMessage();
+        await this.msg.channel.send(message);
+        this.msg.delete();
     }
 
     // Display User Count
-    [ADMIN.EVERYONE]() {
+    async [ADMIN.EVERYONE]() {
         // Only let admins run command
         if (!this.checkIfAdmin()) {
             logger.error(`${ this.getName() } is not an admin!`);
@@ -335,13 +309,13 @@ class RoleXBot {
         }).length;
         */
 
-        const onlineUsers = this.msg.guild.members.filter(member => !member.user.bot).size;
-        const botUsers = this.msg.guild.members.filter(member => member.user.bot).size;
-        const totalUsers = this.msg.guild.memberCount;
+        const onlineUsers = this.msg.guild.members.filter( member => !member.user.bot ).size;
+        const botUsers    = this.msg.guild.members.filter( member =>  member.user.bot ).size;
+        const totalUsers  = this.msg.guild.memberCount;
 
-        logger.info(`Server User Count: ${onlineUsers} / ${totalUsers}`);
-        this.msg.channel.send(`Members: **${onlineUsers}** (online) / **${botUsers}** (bots) / **${totalUsers}** (total)`)
-            .then( this.msg.delete() );
+        logger.info(`Server User Count: ${ onlineUsers } / ${ totalUsers }`);
+        await this.msg.channel.send(`Members: **${ onlineUsers }** (online) / **${ botUsers }** (bots) / **${ totalUsers }** (total)`);
+        this.msg.delete();
 
     }
 
@@ -355,37 +329,35 @@ class RoleXBot {
 
         // Delete the user command and log the restart
         this.deleteMessage();
-        logger.warn('Restarting in 500ms!');
+        logger.warn('Restarting in 1 second!');
 
-        // Restart in 500ms we can delete the message
-        setTimeout(() => { process.exit() }, 1000);
+        // Restart in 1 second we can delete the message
+        setTimeout( () => { process.exit() }, 1000 );
     }
 
-    [ADMIN.REBOOT]() {
-        this.restart();
-    }
-
-    [ADMIN.RELOAD]() {
-        this.restart();
-    }
+    [ADMIN.REBOOT]() { this.restart() }
+    [ADMIN.RELOAD]() { this.restart() }
 
     // Kick a user for any reason
-    [ADMIN.KICK]() {
+    async [ADMIN.KICK]() {
         // Only let admins run command
         if (!this.checkIfAdmin()) {
             logger.error(`${ this.getName() } is not an admin!`);
             return;
         }
 
-        let justinbieber = this.msg.mentions.members.first();
+        const justinbieber = this.msg.mentions.members.first();
         if (justinbieber) {
-            justinbieber.kick().then( (justinbieber) => {
-                this.msg.channel.send(`Peace out ${justinbieber.displayName}.`)
-            }).catch(() => {
-                this.message.channel.send('Failed to kick Justin Bieber.');
-            });
+            try {
+                const _justinBieber = await justinbieber.kick();
+                await this.msg.channel.send(`Peace out ${ _justinBieber.displayName }.`);
+            } catch (e) {
+                await this.msg.channel.send(`Failed to kick Justin Bieber.\n${ e.toString() }`);
+                logger.error(e);
+                return;
+            }
         }
-        logger.warn(`${justinbieber.displayName} was kicked!`);
+        logger.warn(`${ justinbieber.displayName } was kicked!`);
     }
 }
 

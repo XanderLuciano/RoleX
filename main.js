@@ -1,35 +1,36 @@
 // Main entry file
 
 const Discord = require('discord.js'); // Import Libraries
-const auth = require('./auth.json');
+const auth    = require('./auth.json');
 
-import parser from './utils/ParseMessage' // Import parser
+import parser     from './utils/ParseMessage' // Import parser
 import { logger } from './src/utils' // Import logger
-import { rolex } from './bot' // RoleX main logic
+import { rolex }  from './bot' // RoleX main logic
 
 // Create Discord Client
 const client = new Discord.Client();
 
 // Called when the bot starts up.
 client.on('ready', () => {
-    logger.info(`Logged in as ${ client.user.tag }`); // output name of of the bot to the console
+    logger.info(`Logging in as ${ client.user.tag }`); // output name of of the bot to the console
 	//client.user.setUsername("RoleX"); // Set the bot username on startup
 });
 
 // Called when new users join server (guild)
 client.on('guildMemberAdd', member => {
     // Send the message to a designated channel on a server:
-    const channel = member.guild.channels.find('name', 'welcomes');
+    // const channel = member.guild.channels.find('name', 'welcomes');
+    const channel = member.guild.channels.find(val => val.name === 'welcomes');
 
 	// Do nothing if the channel wasn't found on this server
     if (!channel) return;
 
     // Send the message, mentioning the member
-    channel.send(`Welcome to the server, ${member}!\nCheck out <#430981000907194370> and don't forget to <#430970251174215690> to us. :smile:\nAlso you can type \`.help\` for a list of commands you can use.`);
+    channel.send(`Welcome to the server, ${ member }!\nCheck out <#430981000907194370> and don't forget to <#430970251174215690> to us. :smile:\nAlso you can type \`.help\` for a list of commands you can use.`);
 });
 
 // Called whenever a user posts a message
-client.on('message', (msg) => {
+client.on('message', async msg => {
 
     // Check if the message was from a bot
     if (msg.author.bot) return;
@@ -79,4 +80,14 @@ client.on('message', (msg) => {
     }
 });
 
-client.login(auth.token); // Attempt to Login to Discord
+const start = () => {
+    try {
+        // Attempt to Login to Discord
+        client.login(auth.token)
+            .then( () => logger.info('Logged in.') );
+    } catch (e) {
+        logger.error(e);
+    }
+};
+start();
+
