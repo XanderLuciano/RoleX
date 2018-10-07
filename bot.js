@@ -393,6 +393,7 @@ class RoleXBot {
         const deleteCount = parseInt(countStr, 10);
         if (!deleteCount) {
             logger.error('Failed to detect number');
+            return;
         }
 
         try {
