@@ -269,7 +269,7 @@ class RoleXBot {
 			return;
 		}
 
-        if (!usersusersInRole) {
+        if (!usersInRole) {
 			logger.error('Error getting users');
 			await this.msg.channel.send(`Sorry, could not find users in ${ role.replace(/[|&;$%@"<>(),]/g, '') }.`);
 			return;
@@ -281,10 +281,10 @@ class RoleXBot {
 
     async [USER.UPTIME]() {
         const uptime     = this.client.uptime;
-        let milliseconds = parseInt(uptime % 1000).toString(),
-            seconds      = parseInt((uptime / 1000) % 60).toString(),
-            minutes      = parseInt((uptime / (1000 * 60)) % 60).toString(),
-            hours        = parseInt((uptime / (1000 * 60 * 60)) % 24).toString();
+        let milliseconds = parseInt( uptime % 1000 ).toString(),
+            seconds      = parseInt( (uptime / 1000) % 60 ).toString(),
+            minutes      = parseInt( (uptime / (1000 * 60) ) % 60 ).toString(),
+            hours        = parseInt(  uptime / (1000 * 60 * 60) ).toString();
         const uptimeString = `${ hours.padStart(2, '0') }:${ minutes.padStart(2, '0') }:${ seconds.padStart(2, '0') }.${ milliseconds.padStart(3, '0') }`;
         logger.info(`Bot uptime: ${uptimeString}`);
         await this.msg.channel.send(`Current uptime: ${uptimeString}`);
