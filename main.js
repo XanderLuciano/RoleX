@@ -12,6 +12,7 @@ const client = new Discord.Client();
 
 // Called when the bot starts up.
 client.on('ready', () => {
+    client.user.setActivity('Your Mom', { type: 'WATCHING' });
     logger.info(`Logging in as ${ client.user.tag }`); // output name of of the bot to the console
 	//client.user.setUsername("RoleX"); // Set the bot username on startup
 });
