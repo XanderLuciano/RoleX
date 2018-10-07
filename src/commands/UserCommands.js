@@ -2,6 +2,7 @@
 
 export const SMOKE_WEED = 'smokeDaWeeds';
 export const PING = 'ping';
+export const PONG = 'pong';
 export const RESET = 'reset'; // remove all roles?
 export const ADD_ROLE = 'add';
 export const IAM = 'iam';

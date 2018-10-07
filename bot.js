@@ -118,6 +118,11 @@ class RoleXBot {
         this.msg.reply('pong!');
     }
 
+    // pong - returns the average bot ping.
+    async [USER.PONG]() {
+        await this.msg.channel.send(`${ this.client.ping }ms`);
+    }
+
     // Reset all roles (doesn't work cuz it works too well)
     [USER.RESET]() {
         // First get all user roles
@@ -376,6 +381,47 @@ class RoleXBot {
             }
         }
         logger.warn(`${ justinbieber.displayName } was kicked!`);
+    }
+
+    async [ADMIN.BULK_DELETE](countStr) {
+        // Only let admins run command
+        if (!this.checkIfAdmin()) {
+            logger.error(`${ this.getName() } is not an admin!`);
+            return;
+        }
+
+        const deleteCount = parseInt(countStr, 10);
+        if (!deleteCount) {
+            logger.error('Failed to detect number');
+        }
+
+        try {
+            // Restrict between 1 and 1000 messages
+            const count = Math.min( Math.max(deleteCount, 0), 999 );
+            const amountPerIteration = 50;
+            if (count > amountPerIteration) {
+                let remaining = count;
+                while (remaining > 0) {
+                    if (remaining < amountPerIteration) {
+                        await this.msg.channel.bulkDelete(remaining, false);
+                        logger.info(`Deleted ${ remaining } messages.`);
+                        remaining -= remaining;
+                    } else {
+                        await this.msg.channel.bulkDelete(amountPerIteration, false);
+                        logger.info(`Deleted ${ amountPerIteration } messages.`);
+                        remaining -= amountPerIteration;
+                    }
+                }
+                logger.info(`${ this.getName() } deleted ${ deleteCount } message(s) in ${ this.msg.channel.name }.`);
+            } else {
+                await this.msg.channel.bulkDelete(count + 1, false);
+                logger.info(`${ this.getName() } deleted ${ deleteCount } message(s) in ${ this.msg.channel.name }.`);
+            }
+        } catch (e) {
+            logger.error(`Failed to delete all messages! ${e.message}`);
+            await this.msg.reply(`Error! - Could not delete all messages.\n${e.message}`);
+            await this.msg.delete();
+        }
     }
 }
 

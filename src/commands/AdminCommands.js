@@ -6,3 +6,4 @@ export const RESTART = 'restart';
 export const REBOOT = 'reboot';
 export const RELOAD = 'reload';
 export const KICK = 'kick';
+export const BULK_DELETE = 'rm';
