@@ -11,3 +11,4 @@ export const HELP = 'help';
 export const ROLES = 'roles';
 export const WHOAMI = 'whoami';
 export const WHOIS = 'whois';
+export const UPTIME = 'uptime';

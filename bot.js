@@ -8,7 +8,8 @@ import { ADMIN, USER }              from './src/commands'  // Import Commands
 
 class RoleXBot {
     constructor () {
-        this.msg = null;
+        this.msg    = null;
+        this.client = null;
     }
 
     // Internal User Commands
@@ -17,6 +18,11 @@ class RoleXBot {
     // Stores message state
     setMessage(msg) {
         this.msg = msg;
+    }
+
+    // Store discord client
+    setClient(client) {
+        this.client = client;
     }
 
     // Deletes message
@@ -271,6 +277,18 @@ class RoleXBot {
 
 		logger.error('Error unhandled exception in: whoami');
 		await this.msg.channel.send(`Sorry, I ran into an enexpected error. @Xander - Pls fix.`);
+    }
+
+    async [USER.UPTIME]() {
+        const uptime     = this.client.uptime;
+        let milliseconds = parseInt(uptime % 1000).toString(),
+            seconds      = parseInt((uptime / 1000) % 60).toString(),
+            minutes      = parseInt((uptime / (1000 * 60)) % 60).toString(),
+            hours        = parseInt((uptime / (1000 * 60 * 60)) % 24).toString();
+        const uptimeString = `${ hours.padStart(2, '0') }:${ minutes.padStart(2, '0') }:${ seconds.padStart(2, '0') }.${ milliseconds.padStart(3, '0') }`;
+        logger.info(`Bot uptime: ${uptimeString}`);
+        await this.msg.channel.send(`Current uptime: ${uptimeString}`);
+        setTimeout( () => this.msg.delete(), 3000);
     }
 
 

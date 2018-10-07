@@ -84,7 +84,10 @@ const start = () => {
     try {
         // Attempt to Login to Discord
         client.login(auth.token)
-            .then( () => logger.info('Logged in.') );
+            .then( () => {
+                logger.info('Logged in.');
+                rolex.setClient(client);
+            });
     } catch (e) {
         logger.error(e);
     }
