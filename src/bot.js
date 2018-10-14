@@ -20,7 +20,22 @@ const getUser = () => {
 };
 
 const getChannel= ( channelName ) => {
-    return client.channels.find( c => c.name === channelName );
+    let channel;
+    // Find channel by name
+    channel = client.channels.find( c => c.name === channelName );
+    if (!!channel) {
+        return channel;
+    }
+
+    // Find channel by id
+    channelName = channelName.replace('#', '');
+    channel = client.channels.get( channelName );
+    if (!!channel) {
+        return channel;
+    }
+
+    logger.error(`${ channelName } is not a valid channel.`);
+    return null;
 };
 
 // Deletes message
@@ -317,9 +332,24 @@ class RoleXBot {
             logger.error(`${ getName() } is not an admin!`);
             return;
         }
-
         await msg.channel.send(message);
         msg.delete();
+    }
+
+    async [ADMIN.SAY_IN](args) {
+        // Only let admins run command
+        if (!checkIfAdmin()) {
+            logger.error(`${ getName() } is not an admin!`);
+            return;
+        }
+
+        let [ channelReq, message ] = args.split( /\s(.+)/, 2 );
+        let channel = getChannel(channelReq);
+        if (!channel) {
+            await msg.reply(`I couldn't find that channel.`);
+        }
+        await channel.send(message);
+        await msg.react('🚀');
     }
 
     // Display User Count

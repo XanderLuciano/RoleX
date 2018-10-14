@@ -1,6 +1,7 @@
 // Created by xander on 9/3/2018
 
 export const SAY         = 'say';
+export const SAY_IN      = 'sayin';
 export const EVERYONE    = 'everyone';
 export const RESTART     = 'restart';
 export const REBOOT      = 'reboot';
