@@ -32,7 +32,6 @@ client.on('guildMemberAdd', member => {
 
 // Called whenever a user posts a message
 client.on('message', async msg => {
-
     // Check if the message was from a bot
     if (msg.author.bot) return;
 
@@ -50,16 +49,16 @@ client.on('message', async msg => {
     // Record the command in the log, else return early since we don't need to do anything
     if (cmd) {
         if (cmd.args)
-            logger.info(`#${ msg.channel.name } | ${ rolex.getName() }: ${ cmd.command } - ${ cmd.args ? cmd.args : '' }`);
+            logger.info(`#${ msg.channel.name } | ${ msg.author.username }: ${ cmd.command } - ${ cmd.args ? cmd.args : '' }`);
         else
-            logger.info(`#${ msg.channel.name } | ${ rolex.getName() }: ${ cmd.command }`);
+            logger.info(`#${ msg.channel.name } | ${ msg.author.username }: ${ cmd.command }`);
     } else {
         return;
     }
 
     // Sanitize the input
     let command = cmd.command.replace( /[|&;$%@"<>(),]/g, '' );
-    let args = cmd.args.replace( /[|&;$%@"<>(),]/g, '' );
+    let args    = cmd.args.replace( /[|&;$%@"<>(),]/g, '' );
 
     // React to different commands
     switch (command) {
@@ -82,7 +81,7 @@ client.on('message', async msg => {
 });
 
 export const start = () => {
-    (async () => {
+    ( async () => {
         try {
             // Attempt to Login to Discord
             await client.login(auth.token);
@@ -91,7 +90,7 @@ export const start = () => {
         } catch (e) {
             logger.error(e);
         }
-    })().then(() => {
+    })().then( () => {
         console.log('RoleX started.');
     });
 };
