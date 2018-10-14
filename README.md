@@ -1,15 +1,15 @@
 # RoleX Bot
 
-![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=for-the-badge) 
+[![dependencies Status](https://david-dm.org/xanderluciano/rolex/status.svg)](https://david-dm.org/xanderluciano/rolex)
 
 RoleX Bot is (at this point) a fairly simple discord bot built in Node.js that allows users to easily view all available roles and add/remove roles from themselves. In it's current state, this bot is something entirely eductional for myself to learn more and try different things - which is why I put it on NPM. At this point I don't really expect *anyone* to use this bot besides myself, but hey, you can if you want.
 
 ### Setup
 
-
-  - Install normally through NPM.
-  - Add a file called auth.json with your OAuth2 token form the Discord API.
-  - `npm run bot`
+  1. Clone repo.
+  2. `npm install` Install normally through NPM.
+  3. Add a file called `auth.json` with your OAuth2 token form the Discord API.
+  4. `npm run bot`
 
 
 ### Improve Life
@@ -24,3 +24,5 @@ Node and NPM are a good start. The Discord Node client library should automatica
 ------------ 
 
 Xander Luciano
+
+![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=for-the-badge) 
