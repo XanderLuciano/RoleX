@@ -8,7 +8,7 @@ export const blacklistedRoles = [
     'Our Lord, Jabril',
     'Zapier',
     '@everyone',
-    'The Naughty Corner (Misbehaving).',
+    'The Naughty Corner (Misbehaving)',
     'Trash',
     'Contributor',
     'Statbot',
