@@ -15,4 +15,5 @@ export const blacklistedRoles = [
 	'Competitor',
 	'I have introduced myself',
     'GameJam 1 Winner',
+    'GameJam 1 Competitor',
 ];
