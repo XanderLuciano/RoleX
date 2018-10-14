@@ -8,11 +8,11 @@ import { logger } from './src/utils' // Import logger
 import { rolex }  from './bot' // RoleX main logic
 
 // Create Discord Client
-const client = new Discord.Client();
+export const client = new Discord.Client();
 
 // Called when the bot starts up.
-client.on('ready', () => {
-    client.user.setActivity('Your Mom', { type: 'WATCHING' });
+client.on('ready', async () => {
+    await client.user.setActivity('Your Mom', { type: 'WATCHING' });
     logger.info(`Logging in as ${ client.user.tag }`); // output name of of the bot to the console
 	//client.user.setUsername("RoleX"); // Set the bot username on startup
 });
@@ -81,17 +81,14 @@ client.on('message', async msg => {
     }
 });
 
-const start = () => {
+export const start = async () => {
     try {
         // Attempt to Login to Discord
-        client.login(auth.token)
-            .then( () => {
-                logger.info('Logged in.');
-                rolex.setClient(client);
-            });
+        await client.login(auth.token);
+        logger.info('Logged in.');
+        rolex.setClient(client);
     } catch (e) {
         logger.error(e);
     }
 };
-start();
 

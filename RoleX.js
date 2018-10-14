@@ -5,4 +5,13 @@ require('babel-register')({
 });
 
 // Import the rest of our application.
-module.exports = require('./main.js');
+// module.exports = require('./main.js');
+
+const main = require('./main.js');
+
+global.client = main.client;
+global.channels = client.channels;
+
+main.start().then( () => {
+    console.log('RoleX Started.');
+});
