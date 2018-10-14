@@ -5,7 +5,7 @@ const auth    = require('./auth.json');
 
 import parser     from './utils/ParseMessage' // Import parser
 import { logger } from './src/utils' // Import logger
-import { rolex }  from './bot' // RoleX main logic
+import { rolex }  from './src/bot' // RoleX main logic
 
 // Create Discord Client
 export const client = new Discord.Client();
@@ -21,7 +21,7 @@ client.on('ready', async () => {
 client.on('guildMemberAdd', member => {
     // Send the message to a designated channel on a server:
     // const channel = member.guild.channels.find('name', 'welcomes');
-    const channel = member.guild.channels.find(val => val.name === 'welcomes');
+    const channel = member.guild.channels.find( val => val.name === 'welcomes' );
 
 	// Do nothing if the channel wasn't found on this server
     if (!channel) return;
@@ -50,16 +50,16 @@ client.on('message', async msg => {
     // Record the command in the log, else return early since we don't need to do anything
     if (cmd) {
         if (cmd.args)
-            logger.info(`#${msg.channel.name} | ${ rolex.getName() }: ${ cmd.command } - ${ cmd.args ? cmd.args : '' }`);
+            logger.info(`#${ msg.channel.name } | ${ rolex.getName() }: ${ cmd.command } - ${ cmd.args ? cmd.args : '' }`);
         else
-            logger.info(`#${msg.channel.name} | ${ rolex.getName() }: ${ cmd.command }`);
+            logger.info(`#${ msg.channel.name } | ${ rolex.getName() }: ${ cmd.command }`);
     } else {
         return;
     }
 
     // Sanitize the input
-    let command = cmd.command.replace(/[|&;$%@"<>(),]/g, '');
-    let args = cmd.args.replace(/[|&;$%@"<>(),]/g, '');
+    let command = cmd.command.replace( /[|&;$%@"<>(),]/g, '' );
+    let args = cmd.args.replace( /[|&;$%@"<>(),]/g, '' );
 
     // React to different commands
     switch (command) {
@@ -74,21 +74,25 @@ client.on('message', async msg => {
                 else
                     rolex[command]();
             } catch (e) {
-                logger.warn(`Invalid Command: ${command}`);
+                logger.warn(`Invalid Command: ${ command }`);
                 logger.error(e.message);
             }
             break;
     }
 });
 
-export const start = async () => {
-    try {
-        // Attempt to Login to Discord
-        await client.login(auth.token);
-        logger.info('Logged in.');
-        rolex.setClient(client);
-    } catch (e) {
-        logger.error(e);
-    }
+export const start = () => {
+    (async () => {
+        try {
+            // Attempt to Login to Discord
+            await client.login(auth.token);
+            logger.info('Logged in.');
+            rolex.setClient(client);
+        } catch (e) {
+            logger.error(e);
+        }
+    })().then(() => {
+        console.log('RoleX started.');
+    });
 };
 

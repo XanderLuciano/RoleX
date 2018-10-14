@@ -1,8 +1,8 @@
 // All the "Actions" the bot can take
 
 import Discord                      from 'discord.js'      // Discord API library
-import { logger, blacklistedRoles } from './src/utils'     // Import helper utilities
-import { ADMIN, USER }              from './src/commands'  // Import Commands
+import { logger, blacklistedRoles } from './utils'     // Import helper utilities
+import { ADMIN, USER }              from './commands'  // Import Commands
 
 
 
@@ -38,6 +38,10 @@ class RoleXBot {
     // Users be got
     getUser() {
         return this.msg.user
+    }
+
+    getChannel( channelName ) {
+        return this.client.channels.find( c => c.name === channelName );
     }
 
     // Check if someone is admin / Rot13

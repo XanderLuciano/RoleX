@@ -7,7 +7,7 @@
     "main": "RoleX.js",
     "scripts": {
         "start": "node RoleX.js",
-        "bot": "npm run bot"
+        "bot": "npm run start"
     },
     "dependencies": {
         "discord.js": "^11.4.2",
