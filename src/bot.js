@@ -28,8 +28,8 @@ const getChannel= ( channelName ) => {
     }
 
     // Find channel by id
-    channelName = channelName.replace('#', '');
-    channel = client.channels.get( channelName );
+    const channelId = channelName.replace(/[^\d]+/, ''); // Remove all non digits
+    channel = client.channels.get( channelId );
     if (!!channel) {
         return channel;
     }
@@ -58,8 +58,8 @@ const checkIfAdmin = () => {
 };
 
 // Check if user has a role
-const checkForRole = ( role ) => {
-    return !!(msg.member.roles.some( val => val.name === role ));
+const checkForRole = ( roleName ) => {
+    return !!(msg.member.roles.some( val => val.name === roleName ));
 };
 
 // Get all "basic" roles
@@ -93,17 +93,16 @@ const findRole = async ( role ) => {
     // Look for role by name first
     // roleObj = msg.guild.roles.find('name', role);
     roleObj = msg.guild.roles.find( val => val.name === role );
-
-    if (roleObj) {
-        logger.info(`Found Role by Name: ${roleObj.name}`);
+    if (!!roleObj) {
+        logger.info(`Found Role by Name: ${ roleObj.name }`);
         return roleObj;
     }
 
     // If role is not found by name, try getting the role by ID
-    roleObj = msg.guild.roles.get(role);
-
-    if (roleObj) {
-        logger.info(`Found Role by ID: ${roleObj.name}`);
+    const roleId = role.replace(/[^\d]+/, '');
+    roleObj = msg.guild.roles.get( roleId );
+    if (!!roleObj) {
+        logger.info(`Found Role by ID: ${ roleObj.name }`);
         return roleObj;
     }
 
@@ -210,10 +209,14 @@ class RoleXBot {
         }
 
         // Try to find a matching role
-        const roleObj = await findRole(role);
+        const roleObj = await findRole( role );
 
         // No matching Role
-        if (!roleObj) return;
+        if (!roleObj) {
+            logger.error( `${ getName() } does not have role: ${ role }` );
+            await msg.react('❌');
+            return;
+        };
         role = roleObj;
 
         // Log result
@@ -260,7 +263,10 @@ class RoleXBot {
         let roleObj = await findRole(role);
 
         // No matching Role
-        if (!roleObj) return;
+        if (!roleObj) {
+            logger.error( `Failed to find role: ${ role }` );
+            return;
+        };
 
         role = roleObj.name;
 
@@ -347,7 +353,10 @@ class RoleXBot {
         let channel = getChannel(channelReq);
         if (!channel) {
             await msg.reply(`I couldn't find that channel.`);
+            await msg.react('❌');
+            return;
         }
+
         await channel.send(message);
         await msg.react('🚀');
     }

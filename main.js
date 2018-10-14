@@ -58,7 +58,7 @@ client.on('message', async msg => {
 
     // Sanitize the input
     let command = cmd.command.replace( /[|&;$%@"<>(),]/g, '' );
-    let args    = cmd.args.replace( /[|&;$%@"<>(),]/g, '' );
+    let args    = cmd.args.replace( /[|&;$%"<>(),]/g, '' );
 
     // React to different commands
     switch (command) {
