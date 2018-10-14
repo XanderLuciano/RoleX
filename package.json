@@ -1,6 +1,6 @@
 {
     "name": "rolex-bot",
-    "version": "1.3.9",
+    "version": "1.4.0",
     "author": "Xander Luciano",
     "license": "MIT",
     "description": "A discord bot for managing user roles.",
